@@ -12,5 +12,4 @@ inputs:
 runs:
   using: 'node12'
   main: 'index.js'
-  env:
-    GITHUB_TOKEN: "${{ github.token }}"
+  args: ["${{ github.token }}"]
