@@ -1,0 +1,16 @@
+name: 'Deliverybot Deployment Status'
+description: 'Set the status of a deployment'
+author: 'deliverybot'
+inputs:
+  state:
+    description: 'Deployment status to set the action as'
+    default: 'pending'
+  token:
+    description: 'Github repository token'
+  log-url:
+    description: 'Log url location'
+  description:
+    description: 'Descriptive message about the deployment state'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
