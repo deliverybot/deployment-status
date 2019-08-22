@@ -12,5 +12,5 @@ inputs:
   description:
     description: 'Descriptive message about the deployment state'
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: 'node10'
+  main: 'index.js'
