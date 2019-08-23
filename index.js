@@ -11,6 +11,8 @@ async function run() {
     const client = new github.GitHub(token);
     const context = github.context;
 
+    console.log(context);
+
     await client.repos.createDeploymentStatus({
       ...context.repo,
       deployment_id: context.payload.deployment.id,
