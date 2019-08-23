@@ -3,7 +3,7 @@ const github = require("@actions/github");
 
 async function run() {
   try {
-    const token = process.env.GITHUB_TOKEN;
+    const token = core.getInput("token", {required: true});
     const state = core.getInput("state", {required: true});
     const log_url = core.getInput("log-url", {required: false});
     const description = core.getInput("description", {required: false});
