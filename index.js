@@ -9,6 +9,7 @@ async function run() {
     const token = core.getInput("token", {required: true});
     const state = core.getInput("state", {required: true});
     const logURL = core.getInput("log-url", {required: false}) || defaultUrl;
+    const env = core.getInput("env", {required: false});
     const envURL = core.getInput("env-url", {required: false});
     const description = core.getInput("description", {required: false});
 
@@ -19,6 +20,7 @@ async function run() {
       deployment_id: context.payload.deployment.id,
       state,
       log_url: logURL,
+      environment: env,
       environment_url: envURL,
       target_url: url,
       description,

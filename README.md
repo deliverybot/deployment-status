@@ -9,6 +9,7 @@ Marks a deployment status for GitHub actions.
 - `state`: Deployment state. (default: pending)
 - `description`: Descriptive message about the deployment state.
 - `log-url`: The full URL of the deployment's output.
+- `env`: Name for the target deployment environment, which can be changed when setting a deploy status.
 - `env-url`: URL for accessing your environment.
 - `token`: Github repository token.
 
