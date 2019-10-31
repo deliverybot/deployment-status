@@ -14,17 +14,21 @@ async function run() {
     const envUrl = core.getInput("environment-url", {required: false});
 
     const client = new github.GitHub(token);
-
-    await client.repos.createDeploymentStatus({
+    const params = {
       ...context.repo,
       deployment_id: context.payload.deployment.id,
       state,
       log_url: url,
       target_url: url,
-      environment: env,
-      environment_url: envUrl,
       description,
-    });
+    };
+    if (env) {
+      params.environment = env;
+    }
+    if (envUrl) {
+      params.environment_url = envUrl;
+    }
+    await client.repos.createDeploymentStatus(params);
   } catch (error) {
     core.error(error);
     core.setFailed(error.message);
