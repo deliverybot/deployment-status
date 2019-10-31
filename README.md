@@ -10,6 +10,8 @@ Marks a deployment status for GitHub actions.
 - `description`: Descriptive message about the deployment state.
 - `log-url`: Log url location.
 - `token`: Github repository token.
+- `environment`: Name for the target deployment environment, which can be changed when setting a deploy status.
+- `environment-url`: URL for accessing your environment.
 
 ## Example
 

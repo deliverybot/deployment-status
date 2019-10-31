@@ -11,6 +11,10 @@ inputs:
     description: 'Log url location'
   description:
     description: 'Descriptive message about the deployment state'
+  environment:
+    description: 'Name for the target deployment environment, which can be changed when setting a deploy status.'
+  environment-url:
+    description: 'URL for accessing your environment.'
 runs:
   using: 'node12'
   main: 'index.js'

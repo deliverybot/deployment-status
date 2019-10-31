@@ -10,6 +10,8 @@ async function run() {
     const state = core.getInput("state", {required: true});
     const url = core.getInput("log-url", {required: false}) || defaultUrl;
     const description = core.getInput("description", {required: false});
+    const env = core.getInput("environment", {required: false});
+    const envUrl = core.getInput("environment-url", {required: false});
 
     const client = new github.GitHub(token);
 
@@ -19,6 +21,8 @@ async function run() {
       state,
       log_url: url,
       target_url: url,
+      environment: env,
+      environment_url: envUrl,
       description,
     });
   } catch (error) {
