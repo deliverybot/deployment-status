@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/deliverybot/deployment-status/compare/v1.0.0...v1.1.0) (2019-10-31)
+
+
+### Bug Fixes
+
+* Revert commit to add environment url and env ([#4](https://github.com/deliverybot/deployment-status/issues/4)) ([6e45768](https://github.com/deliverybot/deployment-status/commit/6e45768))
+
+
+### Features
+
+* Add environment url and environment ([#3](https://github.com/deliverybot/deployment-status/issues/3)) ([29aa7e9](https://github.com/deliverybot/deployment-status/commit/29aa7e9))
+* Implement environment, environment-url ([72d7082](https://github.com/deliverybot/deployment-status/commit/72d7082))
+
 ## [1.0.0](https://github.com/deliverybot/deployment-status/compare/v0.0.1...v1.0.0) (2019-09-09)
 
 
