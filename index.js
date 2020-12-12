@@ -9,6 +9,7 @@ async function run() {
     const token = core.getInput("token", {required: true});
     const state = core.getInput("state", {required: true});
     const url = core.getInput("log-url", {required: false}) || defaultUrl;
+    const deployment_id = core.getInput("deployment-id", {required: false}) || context.payload.deployment.id;
     const description = core.getInput("description", {required: false});
     const env = core.getInput("environment", {required: false});
     const envUrl = core.getInput("environment-url", {required: false});
@@ -16,7 +17,7 @@ async function run() {
     const client = new github.GitHub(token);
     const params = {
       ...context.repo,
-      deployment_id: context.payload.deployment.id,
+      deployment_id: deployment_id,
       state,
       log_url: url,
       target_url: url,
