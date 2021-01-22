@@ -9,6 +9,8 @@ inputs:
     description: 'Github repository token'
   log-url:
     description: 'Log url location'
+  deployment-id:
+    description: 'Optional deployment ID to provide, if this action was triggered outside of a `deployment` event.'
   description:
     description: 'Descriptive message about the deployment state'
   environment:
