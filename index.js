@@ -1,19 +1,19 @@
-const core = require("@actions/core");
-const github = require("@actions/github");
+const core = require('@actions/core');
+const { context, getOctokit } = require('@actions/github');
 
 async function run() {
   try {
-    const context = github.context;
     const defaultUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${context.sha}/checks`;
 
-    const token = core.getInput("token", {required: true});
-    const state = core.getInput("state", {required: true});
-    const url = core.getInput("log-url", {required: false}) || defaultUrl;
-    const description = core.getInput("description", {required: false});
-    const env = core.getInput("environment", {required: false});
-    const envUrl = core.getInput("environment-url", {required: false});
+    const token = core.getInput('token', { required: true });
+    const state = core.getInput('state', { required: true });
+    const url = core.getInput('log-url', { required: false }) || defaultUrl;
+    const description = core.getInput('description', { required: false });
+    const env = core.getInput('environment', { required: false });
+    const envUrl = core.getInput('environment-url', { required: false });
+    const previews = core.getInput('previews', { required: false });
 
-    const client = new github.GitHub(token);
+    const client = getOctokit(token, { previews: previews.split(',') });
     const params = {
       ...context.repo,
       deployment_id: context.payload.deployment.id,
