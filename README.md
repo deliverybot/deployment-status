@@ -27,17 +27,15 @@ jobs:
     runs-on: 'ubuntu-latest'
 
     steps:
-    - uses: actions/checkout@v1
-    - name: 'use node 8.x'
-      uses: actions/setup-node@v1
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
       with:
-        node-version: 8.x
+        node-version: 16
 
     - name: 'deployment pending'
-      uses: 'deliverybot/deployment-status@v1'
+      uses: 'deliverybot/deployment-status@v2'
       with:
         state: 'pending'
-        token: '${{ github.token }}'
 
     - name: 'deploy'
       run: |
@@ -45,15 +43,13 @@ jobs:
 
     - name: 'deployment success'
       if: success()
-      uses: 'deliverybot/deployment-status@v1'
+      uses: 'deliverybot/deployment-status@v2'
       with:
         state: 'success'
-        token: '${{ github.token }}'
 
     - name: 'deployment failure'
       if: failure()
-      uses: 'deliverybot/deployment-status@v1'
+      uses: 'deliverybot/deployment-status@v2'
       with:
         state: 'failure'
-        token: '${{ github.token }}'
 ```

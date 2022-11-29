@@ -13,7 +13,7 @@ async function run() {
     const env = core.getInput("environment", {required: false});
     const envUrl = core.getInput("environment-url", {required: false});
 
-    const client = new github.GitHub(token);
+    const client = new github.getOctokit(token);
     const params = {
       ...context.repo,
       deployment_id: context.payload.deployment.id,
@@ -28,7 +28,7 @@ async function run() {
     if (envUrl) {
       params.environment_url = envUrl;
     }
-    await client.repos.createDeploymentStatus(params);
+    await client.rest.repos.createDeploymentStatus(params);
   } catch (error) {
     core.error(error);
     core.setFailed(error.message);
