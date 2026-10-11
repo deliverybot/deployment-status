@@ -1,6 +1,21 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file.
+
+## [2.0.0](https://github.com/deliverybot/deployment-status/compare/v1.1.1...v2.0.0) (2026-10-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* The action is now a composite action that sets the status with the GitHub CLI (`gh api`) instead of a Node 12 action. The runner needs `gh`. GitHub-hosted runners include it; install it on self-hosted runners or in `container:` jobs.
+
+
+### Features
+
+* `token` defaults to `${{ github.token }}`.
+* New `deployment-id` input, so the action can run on events other than `deployment`.
+* Works on GitHub Enterprise Server.
+* Fails with a clear message when there is no deployment or `gh` is missing.
 
 ### [1.1.1](https://github.com/deliverybot/deployment-status/compare/v1.1.0...v1.1.1) (2019-10-31)
 
