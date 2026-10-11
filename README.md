@@ -32,7 +32,7 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: "deployment pending"
-        uses: "deliverybot/deployment-status@v1"
+        uses: "deliverybot/deployment-status@v2"
         with:
           state: "pending"
           token: "${{ github.token }}"
@@ -43,14 +43,14 @@ jobs:
 
       - name: "deployment success"
         if: success()
-        uses: "deliverybot/deployment-status@v1"
+        uses: "deliverybot/deployment-status@v2"
         with:
           state: "success"
           token: "${{ github.token }}"
 
       - name: "deployment failure"
         if: failure()
-        uses: "deliverybot/deployment-status@v1"
+        uses: "deliverybot/deployment-status@v2"
         with:
           state: "failure"
           token: "${{ github.token }}"
