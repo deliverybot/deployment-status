@@ -1,20 +1,34 @@
-name: 'Deliverybot Deployment Status'
-description: 'Set the status of a deployment'
-author: 'deliverybot'
+name: "Deliverybot Deployment Status"
+description: "Set the status of a deployment"
+author: "deliverybot"
 inputs:
   state:
-    description: 'Deployment status to set the action as'
-    default: 'pending'
+    description: "Deployment status to set the action as"
+    default: "pending"
   token:
-    description: 'Github repository token'
+    description: "GitHub token with deployments: write permission"
+    default: ${{ github.token }}
   log-url:
-    description: 'Log url location'
+    description: "Log url location. Defaults to the checks page of the commit."
   description:
-    description: 'Descriptive message about the deployment state'
+    description: "Descriptive message about the deployment state"
   environment:
-    description: 'Name for the target deployment environment, which can be changed when setting a deploy status.'
+    description: "Name for the target deployment environment, which can be changed when setting a deploy status."
   environment-url:
-    description: 'URL for accessing your environment.'
+    description: "URL for accessing your environment."
+  deployment-id:
+    description: "ID of the deployment to update. Defaults to the deployment that triggered the workflow."
+    default: ${{ github.event.deployment.id }}
 runs:
-  using: 'node12'
-  main: 'index.js'
+  using: "composite"
+  steps:
+    - shell: bash
+      run: '"$GITHUB_ACTION_PATH/status.sh"'
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        INPUT_STATE: ${{ inputs.state }}
+        INPUT_LOG_URL: ${{ inputs.log-url }}
+        INPUT_DESCRIPTION: ${{ inputs.description }}
+        INPUT_ENVIRONMENT: ${{ inputs.environment }}
+        INPUT_ENVIRONMENT_URL: ${{ inputs.environment-url }}
+        DEPLOYMENT_ID: ${{ inputs.deployment-id }}

@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: shellcheck status.sh test/*.sh
+      - run: test/status.test.sh
+
+  # Runs the action against the real API: creates a deployment, sets its
+  # status with the action, checks it, then deletes the deployment.
+  integration:
+    # Pull requests from forks get a read-only token.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Create a deployment
+        id: deployment
+        env:
+          REF: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          id=$(jq -n --arg ref "$REF" \
+            '{ref: $ref, environment: "ci-test", transient_environment: true, auto_merge: false, required_contexts: []}' |
+            gh api --method POST "repos/$GITHUB_REPOSITORY/deployments" --input - --jq .id)
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
+      - uses: ./
+        with:
+          deployment-id: ${{ steps.deployment.outputs.id }}
+          state: success
+          description: CI test
+          environment-url: https://example.com
+
+      - name: Check the status
+        env:
+          ID: ${{ steps.deployment.outputs.id }}
+        run: |
+          status=$(gh api "repos/$GITHUB_REPOSITORY/deployments/$ID/statuses" --jq '.[0]')
+          echo "$status" | jq .
+          test "$(jq -r .state <<<"$status")" = success
+          test "$(jq -r .description <<<"$status")" = "CI test"
+          test "$(jq -r .environment_url <<<"$status")" = https://example.com
+
+      - name: Delete the deployment
+        if: always() && steps.deployment.outputs.id
+        env:
+          ID: ${{ steps.deployment.outputs.id }}
+        run: |
+          gh api --method POST "repos/$GITHUB_REPOSITORY/deployments/$ID/statuses" -f state=inactive --silent
+          gh api --method DELETE "repos/$GITHUB_REPOSITORY/deployments/$ID"
