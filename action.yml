@@ -19,6 +19,8 @@ inputs:
   deployment-id:
     description: "ID of the deployment to update. Defaults to the deployment that triggered the workflow."
     default: ${{ github.event.deployment.id }}
+  auto-inactive:
+    description: "Whether to mark earlier successful deployments to the same environment inactive. Defaults to true for the success state and false otherwise."
 runs:
   using: "composite"
   steps:
@@ -32,3 +34,4 @@ runs:
         INPUT_ENVIRONMENT: ${{ inputs.environment }}
         INPUT_ENVIRONMENT_URL: ${{ inputs.environment-url }}
         DEPLOYMENT_ID: ${{ inputs.deployment-id }}
+        INPUT_AUTO_INACTIVE: ${{ inputs.auto-inactive }}

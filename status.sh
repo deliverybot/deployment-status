@@ -17,14 +17,32 @@ fi
 export GH_HOST="${GITHUB_SERVER_URL#*://}"
 
 log_url="${INPUT_LOG_URL:-$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/commit/$GITHUB_SHA/checks}"
+state="${INPUT_STATE:-pending}"
+
+# GitHub marks earlier successful deployments to the environment inactive
+# whenever a new status is created, unless auto_inactive is false. Only let a
+# successful deployment do that, so a deployment that is still running or has
+# failed doesn't replace the one that is actually live.
+auto_inactive="${INPUT_AUTO_INACTIVE:-}"
+if [[ -z "$auto_inactive" ]]; then
+  if [[ "$state" == "success" ]]; then
+    auto_inactive=true
+  else
+    auto_inactive=false
+  fi
+elif [[ "$auto_inactive" != "true" && "$auto_inactive" != "false" ]]; then
+  echo "::error::auto-inactive must be \"true\" or \"false\", got \"$auto_inactive\"."
+  exit 1
+fi
 
 args=(
   --method POST
   "repos/$GITHUB_REPOSITORY/deployments/$DEPLOYMENT_ID/statuses"
-  -f "state=${INPUT_STATE:-pending}"
+  -f "state=$state"
   -f "log_url=$log_url"
   -f "target_url=$log_url"
   -f "description=${INPUT_DESCRIPTION:-}"
+  -F "auto_inactive=$auto_inactive"
 )
 if [[ -n "${INPUT_ENVIRONMENT:-}" ]]; then
   args+=(-f "environment=$INPUT_ENVIRONMENT")
