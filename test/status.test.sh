@@ -53,6 +53,44 @@ log_url=https://github.com/octo/app/commit/abc123/checks
 target_url=https://github.com/octo/app/commit/abc123/checks
 -f
 description=
+-F
+auto_inactive=true
+--silent"
+
+run INPUT_STATE="in_progress" >/dev/null
+check "keeps earlier deployments active while not successful" "GH_HOST=github.com
+api
+--method
+POST
+repos/octo/app/deployments/42/statuses
+-f
+state=in_progress
+-f
+log_url=https://github.com/octo/app/commit/abc123/checks
+-f
+target_url=https://github.com/octo/app/commit/abc123/checks
+-f
+description=
+-F
+auto_inactive=false
+--silent"
+
+run INPUT_STATE="failure" INPUT_AUTO_INACTIVE="true" >/dev/null
+check "explicit auto-inactive" "GH_HOST=github.com
+api
+--method
+POST
+repos/octo/app/deployments/42/statuses
+-f
+state=failure
+-f
+log_url=https://github.com/octo/app/commit/abc123/checks
+-f
+target_url=https://github.com/octo/app/commit/abc123/checks
+-f
+description=
+-F
+auto_inactive=true
 --silent"
 
 run INPUT_LOG_URL="https://ci.example.com/run/1" INPUT_DESCRIPTION="Deployed it" \
@@ -71,6 +109,8 @@ log_url=https://ci.example.com/run/1
 target_url=https://ci.example.com/run/1
 -f
 description=Deployed it
+-F
+auto_inactive=true
 -f
 environment=production
 -f
@@ -93,6 +133,7 @@ expect_failure() {
 }
 
 expect_failure "no deployment" "No deployment to update" DEPLOYMENT_ID="" GITHUB_EVENT_NAME="push"
+expect_failure "invalid auto-inactive" "auto-inactive must be" INPUT_AUTO_INACTIVE="yes"
 expect_failure "gh missing" "gh) is not installed" PATH="$tmp/empty"
 
 exit "$failures"

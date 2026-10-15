@@ -13,6 +13,7 @@ Marks a deployment status for GitHub actions. Run it from a workflow triggered b
 - `environment`: Name for the target deployment environment, which can be changed when setting a deploy status.
 - `environment-url`: URL for accessing your environment.
 - `deployment-id`: ID of the deployment to update. (default: the deployment that triggered the workflow)
+- `auto-inactive`: Whether to mark earlier successful deployments to the same environment inactive. (default: `true` for `success`, `false` otherwise, so a running or failed deployment doesn't replace the live one)
 
 ## Example
 

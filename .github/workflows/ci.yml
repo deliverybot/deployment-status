@@ -64,3 +64,83 @@ jobs:
         run: |
           gh api --method POST "repos/$GITHUB_REPOSITORY/deployments/$ID/statuses" -f state=inactive --silent
           gh api --method DELETE "repos/$GITHUB_REPOSITORY/deployments/$ID"
+
+  # Checks against the real API that a running or failed deployment leaves the
+  # earlier successful deployment active, and that a successful one replaces it.
+  auto-inactive:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ci-auto-inactive
+    permissions:
+      contents: read
+      deployments: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REF: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Create two deployments
+        id: deployments
+        run: |
+          create() {
+            jq -n --arg ref "$REF" \
+              '{ref: $ref, environment: "ci-auto-inactive", production_environment: true, auto_merge: false, required_contexts: []}' |
+              gh api --method POST "repos/$GITHUB_REPOSITORY/deployments" --input - --jq .id
+          }
+          echo "live=$(create)" >> "$GITHUB_OUTPUT"
+          echo "next=$(create)" >> "$GITHUB_OUTPUT"
+
+      - uses: ./
+        with:
+          deployment-id: ${{ steps.deployments.outputs.live }}
+          state: success
+
+      - uses: ./
+        with:
+          deployment-id: ${{ steps.deployments.outputs.next }}
+          state: in_progress
+
+      - name: Earlier deployment stays active while the next one runs
+        run: test "$(gh api "repos/$GITHUB_REPOSITORY/deployments/$ID/statuses" --jq '.[0].state')" = success
+        env:
+          ID: ${{ steps.deployments.outputs.live }}
+
+      - uses: ./
+        with:
+          deployment-id: ${{ steps.deployments.outputs.next }}
+          state: failure
+
+      - name: Earlier deployment stays active when the next one fails
+        run: test "$(gh api "repos/$GITHUB_REPOSITORY/deployments/$ID/statuses" --jq '.[0].state')" = success
+        env:
+          ID: ${{ steps.deployments.outputs.live }}
+
+      - uses: ./
+        with:
+          deployment-id: ${{ steps.deployments.outputs.next }}
+          state: success
+
+      # GitHub adds the inactive status in the background, after a few seconds.
+      - name: Earlier deployment is inactive once the next one succeeds
+        run: |
+          for _ in $(seq 30); do
+            state=$(gh api "repos/$GITHUB_REPOSITORY/deployments/$ID/statuses" --jq '.[0].state')
+            [ "$state" = inactive ] && exit 0
+            sleep 2
+          done
+          echo "::error::Earlier deployment is still $state"
+          exit 1
+        env:
+          ID: ${{ steps.deployments.outputs.live }}
+
+      - name: Delete the deployments
+        if: always()
+        env:
+          IDS: ${{ steps.deployments.outputs.live }} ${{ steps.deployments.outputs.next }}
+        run: |
+          for id in $IDS; do
+            gh api --method POST "repos/$GITHUB_REPOSITORY/deployments/$id/statuses" -f state=inactive --silent
+            gh api --method DELETE "repos/$GITHUB_REPOSITORY/deployments/$id"
+          done
