@@ -117,6 +117,40 @@ environment=production
 environment_url=https://app.example.com
 --silent"
 
+run INPUT_STATE="in_progress" GITHUB_STATE="$tmp/state" >/dev/null
+rm -f "$tmp/args"
+if diff -u <(printf '%s\n' "state=in_progress" "deployment_id=42" "log_url=https://github.com/octo/app/commit/abc123/checks") "$tmp/state"; then
+  echo "ok - saves the status for the post step"
+else
+  echo "not ok - saves the status for the post step"
+  failures=$((failures + 1))
+fi
+
+# main.js passes the inputs, whose names keep their dashes, to status.sh.
+env -i PATH="$tmp/bin:$PATH" GH_ARGS_FILE="$tmp/args" GITHUB_SERVER_URL="https://github.com" \
+  GITHUB_REPOSITORY="octo/app" GITHUB_SHA="abc123" \
+  INPUT_STATE="success" INPUT_DEPLOYMENT-ID="42" INPUT_TOKEN="secret" \
+  INPUT_LOG-URL="https://ci.example.com/run/1" INPUT_ENVIRONMENT-URL="https://app.example.com" \
+  INPUT_AUTO-INACTIVE="false" node "$root/main.js" >/dev/null
+check "main.js maps the inputs" "GH_HOST=github.com
+api
+--method
+POST
+repos/octo/app/deployments/42/statuses
+-f
+state=success
+-f
+log_url=https://ci.example.com/run/1
+-f
+target_url=https://ci.example.com/run/1
+-f
+description=
+-F
+auto_inactive=false
+-f
+environment_url=https://app.example.com
+--silent"
+
 expect_failure() {
   local name="$1" message="$2"
   shift 2

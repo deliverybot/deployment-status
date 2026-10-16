@@ -15,6 +15,8 @@ Marks a deployment status for GitHub actions. Run it from a workflow triggered b
 - `deployment-id`: ID of the deployment to update. (default: the deployment that triggered the workflow)
 - `auto-inactive`: Whether to mark earlier successful deployments to the same environment inactive. (default: `true` for `success`, `false` otherwise, so a running or failed deployment doesn't replace the live one)
 
+If the job is cancelled while the deployment is still `queued`, `pending` or `in_progress`, the action marks it as `error` with the description "Deployment cancelled" when the job ends, so it doesn't stay in progress. A status a later step already set, such as one from an `if: cancelled()` step, is left alone.
+
 ## Example
 
 ```yaml
@@ -59,15 +61,18 @@ jobs:
 
 ## Requirements
 
-This is a composite action that calls the GitHub API with the [GitHub CLI](https://cli.github.com/) (`gh`). GitHub-hosted runners include it. On self-hosted runners or in jobs that run inside a `container:`, make sure `gh` is installed.
+The action calls the GitHub API with the [GitHub CLI](https://cli.github.com/) (`gh`). GitHub-hosted runners include it. On self-hosted runners or in jobs that run inside a `container:`, make sure `gh` is installed.
+
+It is a Node 24 action only so it can run a post step when the job is cancelled, which composite actions can't. Both steps just start shell scripts, and there are no Node dependencies.
 
 ## Development
 
-The action is `action.yml` plus `status.sh`. Run the tests with:
+`main.js` runs `status.sh`, which sets the status. `post.js` runs `post.sh` after a cancelled job. Run the tests with:
 
 ```sh
-shellcheck status.sh test/*.sh
+shellcheck status.sh post.sh test/*.sh
 test/status.test.sh
+test/post.test.sh
 ```
 
 CI also runs the action against the real API by creating and then deleting a test deployment.

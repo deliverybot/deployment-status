@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Creates a deployment status for the deployment that triggered the workflow.
-# Called from action.yml, which maps the action inputs to INPUT_* variables.
+# Called from main.js, which maps the action inputs to INPUT_* variables.
 set -euo pipefail
 
 if [[ -z "${DEPLOYMENT_ID:-}" ]]; then
@@ -52,3 +52,12 @@ if [[ -n "${INPUT_ENVIRONMENT_URL:-}" ]]; then
 fi
 
 gh api "${args[@]}" --silent
+
+# Lets post.sh mark the deployment as an error if the job is cancelled.
+if [[ -n "${GITHUB_STATE:-}" ]]; then
+  {
+    echo "state=$state"
+    echo "deployment_id=$DEPLOYMENT_ID"
+    echo "log_url=$log_url"
+  } >>"$GITHUB_STATE"
+fi
