@@ -12,8 +12,6 @@ jobs:
       - uses: actions/checkout@v7
       - uses: ./.github/probe
         with: { finish: "true" }
-      - uses: ./.github/probe
-        with: { finish: "false" }
       - run: echo deploy
   fail:
     runs-on: ubuntu-latest
@@ -45,3 +43,12 @@ jobs:
           sleep 300
         env:
           GH_TOKEN: ${{ github.token }}
+  no-actions-permission:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/probe
+        with: { finish: "true" }
+      - run: exit 1
