@@ -13,9 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - run: shellcheck status.sh post.sh test/*.sh
-      - run: test/status.test.sh
-      - run: test/post.test.sh
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: node --test
 
   # Runs the action against the real API: creates a deployment, sets its
   # status with the action, checks it, then deletes the deployment.

@@ -1,3 +1,6 @@
-const { input, run } = require("./run");
+const { post } = require("./status");
 
-run("post.sh", { GH_TOKEN: input("token") });
+post(process.env, fetch, console.log).catch((error) => {
+  console.log(`::error::${error.message}`);
+  process.exitCode = 1;
+});

@@ -61,18 +61,14 @@ jobs:
 
 ## Requirements
 
-The action calls the GitHub API with the [GitHub CLI](https://cli.github.com/) (`gh`). GitHub-hosted runners include it. On self-hosted runners or in jobs that run inside a `container:`, make sure `gh` is installed.
-
-It is a Node 24 action only so it can run a post step when the job is cancelled, which composite actions can't. Both steps just start shell scripts, and there are no Node dependencies.
+The action runs on Node 24 and has no dependencies. Self-hosted runners need a runner version that supports Node 24 actions.
 
 ## Development
 
-`main.js` runs `status.sh`, which sets the status. `post.js` runs `post.sh` after a cancelled job. Run the tests with:
+`status.js` holds the logic: `main.js` sets the status and `post.js` runs after a cancelled job. There is no build step or `node_modules`. Run the tests with:
 
 ```sh
-shellcheck status.sh post.sh test/*.sh
-test/status.test.sh
-test/post.test.sh
+node --test
 ```
 
 CI also runs the action against the real API by creating and then deleting a test deployment.

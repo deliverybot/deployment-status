@@ -21,8 +21,7 @@ inputs:
     default: ${{ github.event.deployment.id }}
   auto-inactive:
     description: "Whether to mark earlier successful deployments to the same environment inactive. Defaults to true for the success state and false otherwise."
-# A Node action only so it can have a post step: composite actions can't. Both
-# steps just start the shell scripts, which call the API with gh.
+# A Node action so it can have a post step, which composite actions can't.
 runs:
   using: "node24"
   main: "main.js"
