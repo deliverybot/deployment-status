@@ -1,0 +1,47 @@
+name: Probe
+on:
+  push:
+    branches: [claude/project-thread-yxeq99-finish]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  ok:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/probe
+        with: { finish: "true" }
+      - uses: ./.github/probe
+        with: { finish: "false" }
+      - run: echo deploy
+  fail:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/probe
+        with: { finish: "true" }
+      - run: exit 1
+  soft-fail:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/probe
+        with: { finish: "true" }
+      - run: exit 1
+        continue-on-error: true
+  cancel:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/probe
+        with: { finish: "true" }
+      - run: |
+          sleep 20
+          gh run cancel "$GITHUB_RUN_ID" -R "$GITHUB_REPOSITORY"
+          sleep 300
+        env:
+          GH_TOKEN: ${{ github.token }}

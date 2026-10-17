@@ -1,0 +1,11 @@
+name: probe
+inputs:
+  finish:
+    default: "false"
+  token:
+    default: ${{ github.token }}
+runs:
+  using: node24
+  main: main.js
+  post: post.js
+  post-if: always() && inputs.finish == 'true'
