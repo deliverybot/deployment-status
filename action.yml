@@ -21,17 +21,9 @@ inputs:
     default: ${{ github.event.deployment.id }}
   auto-inactive:
     description: "Whether to mark earlier successful deployments to the same environment inactive. Defaults to true for the success state and false otherwise."
+# A Node action so it can have a post step, which composite actions can't.
 runs:
-  using: "composite"
-  steps:
-    - shell: bash
-      run: '"$GITHUB_ACTION_PATH/status.sh"'
-      env:
-        GH_TOKEN: ${{ inputs.token }}
-        INPUT_STATE: ${{ inputs.state }}
-        INPUT_LOG_URL: ${{ inputs.log-url }}
-        INPUT_DESCRIPTION: ${{ inputs.description }}
-        INPUT_ENVIRONMENT: ${{ inputs.environment }}
-        INPUT_ENVIRONMENT_URL: ${{ inputs.environment-url }}
-        DEPLOYMENT_ID: ${{ inputs.deployment-id }}
-        INPUT_AUTO_INACTIVE: ${{ inputs.auto-inactive }}
+  using: "node24"
+  main: "main.js"
+  post: "post.js"
+  post-if: cancelled()
